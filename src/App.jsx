@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Center,
+  CircularProgress,
   Flex,
   Heading,
   Image,
@@ -26,11 +27,15 @@ function App() {
   const [userAddress, setUserAddress] = useState("");
   const [results, setResults] = useState([]);
   const [hasQueried, setHasQueried] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [tokenDataObjects, setTokenDataObjects] = useState([]);
   const { address } = useAccount();
 
   async function getTokenBalance() {
-    const data = await alchemy.core.getTokenBalances(userAddress);
+    const addressToGet = userAddress || address;
+    if (!addressToGet) return;
+    setIsLoading(true);
+    const data = await alchemy.core.getTokenBalances(addressToGet);
 
     setResults(data);
 
@@ -45,6 +50,7 @@ function App() {
 
     setTokenDataObjects(await Promise.all(tokenDataPromises));
     setHasQueried(true);
+    setIsLoading(false);
   }
 
   useEffect(() => {
@@ -77,7 +83,7 @@ function App() {
         alignItems="center"
         justifyContent={"center"}
       >
-        <Heading fontSize={27} mt={42}>
+        <Heading fontSize={18} mt={42}>
           <ConnectButton />
         </Heading>
         <Heading fontSize={18} mt={2}>
@@ -98,8 +104,19 @@ function App() {
         </Button>
 
         <Heading my={16}>ERC-20 token balances:</Heading>
-
-        {hasQueried ? (
+        {isLoading ? "true" : "false"}
+        {hasQueried ? "true" : "false"}
+        {isLoading ? (
+          <Flex
+            alignItems={"center"}
+            justifyContent="center"
+            flexDirection={"column"}
+          >
+            <CircularProgress isIndeterminate />
+            <br />
+            This may take a few seconds...
+          </Flex>
+        ) : hasQueried ? (
           <SimpleGrid w={"90vw"} columns={4} spacing={24}>
             {results.tokenBalances.map((e, i) => {
               return (
@@ -108,7 +125,7 @@ function App() {
                   color="white"
                   bg="blue"
                   w={"20vw"}
-                  key={e.id}
+                  key={i}
                 >
                   <Box>
                     <b>Symbol:</b> ${tokenDataObjects[i].symbol}&nbsp;
@@ -126,7 +143,7 @@ function App() {
             })}
           </SimpleGrid>
         ) : (
-          "Please make a query! This may take a few seconds..."
+          "Please make a query!"
         )}
       </Flex>
     </Box>
