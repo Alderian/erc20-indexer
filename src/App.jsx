@@ -8,23 +8,28 @@ import {
   Input,
   SimpleGrid,
   Text,
-} from '@chakra-ui/react';
-import { Alchemy, Network, Utils } from 'alchemy-sdk';
-import { useState } from 'react';
+} from "@chakra-ui/react";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Alchemy, Network, Utils } from "alchemy-sdk";
+import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
+import { ALCHEMY_API_KEY } from "./components/env";
+
+const config = {
+  apiKey: ALCHEMY_API_KEY,
+  network: Network.ETH_MAINNET,
+};
+
+const alchemy = new Alchemy(config);
 
 function App() {
-  const [userAddress, setUserAddress] = useState('');
+  const [userAddress, setUserAddress] = useState("");
   const [results, setResults] = useState([]);
   const [hasQueried, setHasQueried] = useState(false);
   const [tokenDataObjects, setTokenDataObjects] = useState([]);
+  const { address } = useAccount();
 
   async function getTokenBalance() {
-    const config = {
-      apiKey: '<-- COPY-PASTE YOUR ALCHEMY API KEY HERE -->',
-      network: Network.ETH_MAINNET,
-    };
-
-    const alchemy = new Alchemy(config);
     const data = await alchemy.core.getTokenBalances(userAddress);
 
     setResults(data);
@@ -41,13 +46,21 @@ function App() {
     setTokenDataObjects(await Promise.all(tokenDataPromises));
     setHasQueried(true);
   }
+
+  useEffect(() => {
+    if (address) {
+      setUserAddress(address);
+      getTokenBalance();
+    }
+  }, [address]);
+
   return (
     <Box w="100vw">
       <Center>
         <Flex
-          alignItems={'center'}
+          alignItems={"center"}
           justifyContent="center"
-          flexDirection={'column'}
+          flexDirection={"column"}
         >
           <Heading mb={0} fontSize={36}>
             ERC-20 Token Indexer
@@ -62,10 +75,13 @@ function App() {
         w="100%"
         flexDirection="column"
         alignItems="center"
-        justifyContent={'center'}
+        justifyContent={"center"}
       >
-        <Heading mt={42}>
-          Get all the ERC-20 token balances of this address:
+        <Heading fontSize={27} mt={42}>
+          <ConnectButton />
+        </Heading>
+        <Heading fontSize={18} mt={2}>
+          Or get all the ERC-20 token balances of this address:
         </Heading>
         <Input
           onChange={(e) => setUserAddress(e.target.value)}
@@ -75,22 +91,23 @@ function App() {
           p={4}
           bgColor="white"
           fontSize={24}
+          value={userAddress}
         />
-        <Button fontSize={20} onClick={getTokenBalance} mt={36} bgColor="blue">
+        <Button fontSize={20} onClick={getTokenBalance} mt={8} bgColor="blue">
           Check ERC-20 Token Balances
         </Button>
 
-        <Heading my={36}>ERC-20 token balances:</Heading>
+        <Heading my={16}>ERC-20 token balances:</Heading>
 
         {hasQueried ? (
-          <SimpleGrid w={'90vw'} columns={4} spacing={24}>
+          <SimpleGrid w={"90vw"} columns={4} spacing={24}>
             {results.tokenBalances.map((e, i) => {
               return (
                 <Flex
-                  flexDir={'column'}
+                  flexDir={"column"}
                   color="white"
                   bg="blue"
-                  w={'20vw'}
+                  w={"20vw"}
                   key={e.id}
                 >
                   <Box>
@@ -109,7 +126,7 @@ function App() {
             })}
           </SimpleGrid>
         ) : (
-          'Please make a query! This may take a few seconds...'
+          "Please make a query! This may take a few seconds..."
         )}
       </Flex>
     </Box>
