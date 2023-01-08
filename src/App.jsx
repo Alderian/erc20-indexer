@@ -13,17 +13,13 @@ import {
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Alchemy, Network, Utils } from "alchemy-sdk";
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
-import { ALCHEMY_API_KEY } from "./components/env";
-
-const config = {
-  apiKey: ALCHEMY_API_KEY,
-  network: Network.ETH_MAINNET,
-};
-
-const alchemy = new Alchemy(config);
+import { useAccount, useNetwork } from "wagmi";
+import { ALCHEMY_API_KEY, ALCHEMY_API_KEY_POLYGON } from "./components/env";
+import { goerli, mainnet } from "wagmi";
+import { hardhat, localhost, polygon, polygonMumbai } from "@wagmi/chains";
 
 function App() {
+  const { chain } = useNetwork();
   const [userAddress, setUserAddress] = useState("");
   const [results, setResults] = useState([]);
   const [hasQueried, setHasQueried] = useState(false);
@@ -35,6 +31,16 @@ function App() {
     const addressToGet = userAddress || address;
     if (!addressToGet) return;
     setIsLoading(true);
+
+    const config = {
+      apiKey:
+        chain?.id === polygon.id ? ALCHEMY_API_KEY_POLYGON : ALCHEMY_API_KEY,
+      network:
+        chain?.id === polygon.id ? Network.MATIC_MAINNET : Network.ETH_MAINNET,
+    };
+
+    const alchemy = new Alchemy(config);
+
     const data = await alchemy.core.getTokenBalances(addressToGet);
 
     setResults(data);

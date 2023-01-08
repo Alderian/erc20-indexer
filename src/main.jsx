@@ -10,29 +10,31 @@ import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { goerli, mainnet } from "wagmi";
-import { hardhat, localhost } from "@wagmi/chains";
+import { hardhat, localhost, polygon, polygonMumbai } from "@wagmi/chains";
 import {
   ALCHEMY_API_KEY,
   ALCHEMY_RPC_URL,
   ALCHEMY_WSS_URL,
+  ALCHEMY_API_KEY_POLYGON,
+  ALCHEMY_RPC_URL_POLYGON,
+  ALCHEMY_WSS_URL_POLYGON,
   NODE_ENV,
 } from "./components/env";
 
 const { chains, provider, webSocketProvider } = configureChains(
   [
     mainnet,
-    ...(NODE_ENV === "testing" ? [goerli] : []),
+    polygon,
+    ...(NODE_ENV === "testing" ? [goerli, polygonMumbai] : []),
     ...(NODE_ENV === "development" ? [hardhat, localhost] : []),
   ],
   [
     jsonRpcProvider({
       rpc: (chain) => ({
-        http: ALCHEMY_RPC_URL,
-        webSocket: ALCHEMY_WSS_URL,
+        http: chain === polygon.id ? ALCHEMY_RPC_URL_POLYGON : ALCHEMY_RPC_URL,
+        webSocket:
+          chain === polygon.id ? ALCHEMY_WSS_URL_POLYGON : ALCHEMY_WSS_URL,
       }),
-    }),
-    alchemyProvider({
-      apiKey: ALCHEMY_API_KEY,
     }),
     publicProvider(),
   ]

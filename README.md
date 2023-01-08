@@ -23,4 +23,5 @@ Here are a few challenge suggestions:
 6. 🔴 There are ways to make this app faster... can you implement some of them? How can the query be made _even_ quicker?
 7. 🔴 Can you add ENS support for inputs?
 8. 🔴 Add some styling! 🎨
+9. 🟡 Add polygon connection
 9. 🔴 Completely open-ended!! Use this as the base for your next hackathon project, dream company or personal expedition :)
