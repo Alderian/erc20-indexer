@@ -43,6 +43,16 @@ function App() {
 
     const data = await alchemy.core.getTokenBalances(addressToGet);
 
+    if (data) {
+      // filter zero balance tokens if any
+      data.tokenBalances = data.tokenBalances.filter((token) => {
+        return (
+          token.tokenBalance !==
+          "0x0000000000000000000000000000000000000000000000000000000000000000"
+        );
+      });
+    }
+
     setResults(data);
 
     const tokenDataPromises = [];
@@ -51,6 +61,7 @@ function App() {
       const tokenData = alchemy.core.getTokenMetadata(
         data.tokenBalances[i].contractAddress
       );
+
       tokenDataPromises.push(tokenData);
     }
 
@@ -138,10 +149,12 @@ function App() {
                   </Box>
                   <Box>
                     <b>Balance:</b>&nbsp;
-                    {Utils.formatUnits(
-                      e.tokenBalance,
-                      tokenDataObjects[i].decimals
-                    )}
+                    {parseFloat(
+                      Utils.formatUnits(
+                        e.tokenBalance,
+                        tokenDataObjects[i].decimals
+                      )
+                    ).toPrecision(8)}
                   </Box>
                   <Image src={tokenDataObjects[i].logo} />
                 </Flex>
