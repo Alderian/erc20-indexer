@@ -4,6 +4,10 @@ import {
   Center,
   CircularProgress,
   Flex,
+  FormControl,
+  FormErrorMessage,
+  FormHelperText,
+  FormLabel,
   Heading,
   Image,
   Input,
@@ -15,12 +19,13 @@ import { Alchemy, Network, Utils } from "alchemy-sdk";
 import { useEffect, useState } from "react";
 import { useAccount, useNetwork } from "wagmi";
 import { ALCHEMY_API_KEY, ALCHEMY_API_KEY_POLYGON } from "./components/env";
-import { goerli, mainnet } from "wagmi";
-import { hardhat, localhost, polygon, polygonMumbai } from "@wagmi/chains";
+import { polygon } from "@wagmi/chains";
+import { isAddress } from "ethers/lib/utils.js";
 
 function App() {
   const { chain } = useNetwork();
   const [userAddress, setUserAddress] = useState("");
+  const [addressError, setAddressError] = useState("");
   const [results, setResults] = useState([]);
   const [hasQueried, setHasQueried] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +34,15 @@ function App() {
 
   async function getTokenBalance() {
     const addressToGet = userAddress || address;
-    if (!addressToGet) return;
+    if (
+      !addressToGet ||
+      addressToGet.trim() === "" ||
+      !isAddress(addressToGet)
+    ) {
+      setAddressError(true);
+      return;
+    }
+    setAddressError(false);
     setIsLoading(true);
 
     const config = {
@@ -94,35 +107,47 @@ function App() {
           </Text>
         </Flex>
       </Center>
+      <FormControl isRequired isInvalid={addressError}>
+        <Flex
+          w="100%"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent={"center"}
+        >
+          <Heading fontSize={18} mt={42}>
+            <ConnectButton />
+          </Heading>
+          <FormLabel fontSize={18} mt={2}>
+            Or get all the ERC-20 token balances of this address:
+          </FormLabel>
+          <Input
+            onChange={(e) => setUserAddress(e.target.value)}
+            color="black"
+            w="600px"
+            textAlign="center"
+            p={4}
+            bgColor="white"
+            fontSize={24}
+            value={userAddress}
+          />
+          {!addressError ? (
+            <FormHelperText> </FormHelperText>
+          ) : (
+            <FormErrorMessage>Valid address is required.</FormErrorMessage>
+          )}
+
+          <Button fontSize={20} onClick={getTokenBalance} mt={8} bgColor="blue">
+            Check ERC-20 Token Balances
+          </Button>
+        </Flex>
+      </FormControl>
       <Flex
         w="100%"
         flexDirection="column"
         alignItems="center"
         justifyContent={"center"}
       >
-        <Heading fontSize={18} mt={42}>
-          <ConnectButton />
-        </Heading>
-        <Heading fontSize={18} mt={2}>
-          Or get all the ERC-20 token balances of this address:
-        </Heading>
-        <Input
-          onChange={(e) => setUserAddress(e.target.value)}
-          color="black"
-          w="600px"
-          textAlign="center"
-          p={4}
-          bgColor="white"
-          fontSize={24}
-          value={userAddress}
-        />
-        <Button fontSize={20} onClick={getTokenBalance} mt={8} bgColor="blue">
-          Check ERC-20 Token Balances
-        </Button>
-
         <Heading my={16}>ERC-20 token balances:</Heading>
-        {isLoading ? "true" : "false"}
-        {hasQueried ? "true" : "false"}
         {isLoading ? (
           <Flex
             alignItems={"center"}
