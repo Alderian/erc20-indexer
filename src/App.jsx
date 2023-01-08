@@ -17,7 +17,7 @@ import {
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Alchemy, Network, Utils } from "alchemy-sdk";
 import { useEffect, useState } from "react";
-import { useAccount, useNetwork } from "wagmi";
+import { useAccount, useNetwork, useProvider } from "wagmi";
 import { ALCHEMY_API_KEY, ALCHEMY_API_KEY_POLYGON } from "./components/env";
 import { polygon } from "@wagmi/chains";
 import { isAddress } from "ethers/lib/utils.js";
@@ -31,17 +31,30 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [tokenDataObjects, setTokenDataObjects] = useState([]);
   const { address } = useAccount();
+  const provider = useProvider();
 
   async function getTokenBalance() {
-    const addressToGet = userAddress || address;
-    if (
-      !addressToGet ||
-      addressToGet.trim() === "" ||
-      !isAddress(addressToGet)
-    ) {
+    let searchAddress = userAddress || address;
+    if (!searchAddress || searchAddress.trim() === "") {
       setAddressError(true);
       return;
+    } else {
+      if (!isAddress(searchAddress)) {
+        // try to resolve ens like entered or adding .eth
+        setIsLoading(true);
+        const resolved = await provider.resolveName(searchAddress);
+        if (!resolved)
+          resolved = await provider.resolveName(searchAddress + ".eth");
+        if (!resolved) {
+          setAddressError(true);
+          setIsLoading(false);
+          return;
+        }
+        searchAddress = resolved;
+      }
     }
+
+    console.log(searchAddress);
     setAddressError(false);
     setIsLoading(true);
 
@@ -54,7 +67,7 @@ function App() {
 
     const alchemy = new Alchemy(config);
 
-    const data = await alchemy.core.getTokenBalances(addressToGet);
+    const data = await alchemy.core.getTokenBalances(searchAddress);
 
     if (data) {
       // filter zero balance tokens if any
@@ -159,33 +172,42 @@ function App() {
             This may take a few seconds...
           </Flex>
         ) : hasQueried ? (
-          <SimpleGrid w={"90vw"} columns={4} spacing={24}>
-            {results.tokenBalances.map((e, i) => {
-              return (
-                <Flex
-                  flexDir={"column"}
-                  color="white"
-                  bg="blue"
-                  w={"20vw"}
-                  key={i}
-                >
-                  <Box>
-                    <b>Symbol:</b> ${tokenDataObjects[i].symbol}&nbsp;
-                  </Box>
-                  <Box>
-                    <b>Balance:</b>&nbsp;
-                    {parseFloat(
-                      Utils.formatUnits(
-                        e.tokenBalance,
-                        tokenDataObjects[i].decimals
-                      )
-                    ).toPrecision(8)}
-                  </Box>
-                  <Image src={tokenDataObjects[i].logo} />
-                </Flex>
-              );
-            })}
-          </SimpleGrid>
+          results && results.tokenBalances && results.tokenBalances.length ? (
+            <SimpleGrid w={"90vw"} columns={4} spacing={24}>
+              {results.tokenBalances.map((e, i) => {
+                return (
+                  <Flex
+                    flexDir={"column"}
+                    color="white"
+                    bg="blue"
+                    w={"20vw"}
+                    key={i}
+                  >
+                    <Box>
+                      <b>Symbol:</b> ${tokenDataObjects[i].symbol}&nbsp;
+                    </Box>
+                    <Box>
+                      <b>Balance:</b>&nbsp;
+                      {parseFloat(
+                        Utils.formatUnits(
+                          e.tokenBalance,
+                          tokenDataObjects[i].decimals
+                        )
+                      ).toPrecision(8)}
+                    </Box>
+                    <Image
+                      boxSize="100px"
+                      objectFit="cover"
+                      alt={tokenDataObjects[i].name}
+                      src={tokenDataObjects[i].logo}
+                    />
+                  </Flex>
+                );
+              })}
+            </SimpleGrid>
+          ) : (
+            "No tokens!"
+          )
         ) : (
           "Please make a query!"
         )}
