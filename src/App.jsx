@@ -1,26 +1,29 @@
 import {
   Box,
-  Button,
-  Center,
   CircularProgress,
+  Container,
   Flex,
-  FormControl,
-  FormErrorMessage,
-  FormHelperText,
-  FormLabel,
   Heading,
-  Image,
-  Input,
-  SimpleGrid,
-  Text,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  Stack,
+  Skeleton,
+  Avatar,
 } from "@chakra-ui/react";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Alchemy, Network, Utils } from "alchemy-sdk";
 import { useEffect, useState } from "react";
 import { useAccount, useNetwork, useProvider } from "wagmi";
 import { ALCHEMY_API_KEY, ALCHEMY_API_KEY_POLYGON } from "./components/env";
 import { polygon } from "@wagmi/chains";
 import { isAddress } from "ethers/lib/utils.js";
+import HeaderToolBar from "./components/HeaderToolBar";
+import WalletInfo from "./components/WalletInfo";
+import Hash from "./components/Hash";
 
 function App() {
   const { chain } = useNetwork();
@@ -103,115 +106,111 @@ function App() {
     }
   }, [address]);
 
-  return (
-    <Box w="100vw">
-      <Center>
-        <Flex
-          alignItems={"center"}
-          justifyContent="center"
-          flexDirection={"column"}
-        >
-          <Heading mb={0} fontSize={36}>
-            ERC-20 Token Indexer
-          </Heading>
-          <Text>
-            Plug in an address and this website will return all of its ERC-20
-            token balances!
-          </Text>
-        </Flex>
-      </Center>
-      <FormControl isRequired isInvalid={addressError}>
-        <Flex
-          w="100%"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent={"center"}
-        >
-          <Heading fontSize={18} mt={42}>
-            <ConnectButton />
-          </Heading>
-          <FormLabel fontSize={18} mt={2}>
-            Or get all the ERC-20 token balances of this address:
-          </FormLabel>
-          <Input
-            onChange={(e) => setUserAddress(e.target.value)}
-            color="black"
-            w="600px"
-            textAlign="center"
-            p={4}
-            bgColor="white"
-            fontSize={24}
-            value={userAddress}
-          />
-          {!addressError ? (
-            <FormHelperText> </FormHelperText>
-          ) : (
-            <FormErrorMessage>Valid address is required.</FormErrorMessage>
-          )}
+  useEffect(() => {
+    if (userAddress) {
+      getTokenBalance();
+    }
+  }, [userAddress]);
 
-          <Button fontSize={20} onClick={getTokenBalance} mt={8} bgColor="blue">
-            Check ERC-20 Token Balances
-          </Button>
+  return (
+    <Box w={"100vw"} h={"100vh"}>
+      <HeaderToolBar
+        userAddress={userAddress}
+        setUserAddress={setUserAddress}
+      />
+      <Container maxW="8xl" my={8}>
+        <Flex
+          minWidth="max-content"
+          alignItems={"start"}
+          justifyContent="center"
+          flexDirection={"row"}
+        >
+          <Box w="250px">
+            <WalletInfo address={userAddress || address} />
+          </Box>
+          <Box flex={1}>
+            <Heading>Wallet</Heading>
+            {isLoading ? (
+              <Flex
+                alignItems={"center"}
+                justifyContent="center"
+                flexDirection={"column"}
+              >
+                <CircularProgress isIndeterminate />
+                This may take a few seconds...
+                <Stack>
+                  <Skeleton height="20px" />
+                  <Skeleton height="20px" />
+                  <Skeleton height="20px" />
+                </Stack>{" "}
+              </Flex>
+            ) : hasQueried ? (
+              results &&
+              results.tokenBalances &&
+              results.tokenBalances.length ? (
+                <TableContainer>
+                  <Table variant="simple" size={"lg"}>
+                    <Thead>
+                      <Tr>
+                        <Th>Asset</Th>
+                        <Th>Symbol</Th>
+                        <Th>Contract Address</Th>
+                        <Th isNumeric>Quantity</Th>
+                        {/* <Th>Price</Th> */}
+                        {/* <Th isNumeric>multiply by</Th> */}
+                        {/* <Th isNumeric>multiply by</Th> */}
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {results.tokenBalances.map((e, i) => {
+                        return (
+                          <Tr key={i}>
+                            <Td>
+                              <Flex alignItems={"center"} gap={2}>
+                                <Avatar
+                                  name={tokenDataObjects[i].name}
+                                  src={tokenDataObjects[i].logo}
+                                />
+                                {tokenDataObjects[i].name}
+                              </Flex>
+                            </Td>
+                            <Td>{tokenDataObjects[i].symbol}</Td>
+                            <Td>
+                              <Hash hash={e.contractAddress} path={"Token"} />
+                            </Td>
+                            <Td isNumeric>
+                              {parseFloat(
+                                Utils.formatUnits(
+                                  e.tokenBalance,
+                                  tokenDataObjects[i].decimals
+                                )
+                              ).toPrecision(8)}
+                            </Td>
+                            {/* <Td isNumeric>
+                                {parseFloat(
+                                  Utils.formatUnits(
+                                    e.tokenBalance,
+                                    tokenDataObjects[i].decimals
+                                  )
+                                ).toPrecision(8)}
+                              </Td> */}
+                            {/* <Td>{JSON.stringify(e)}</Td> */}
+                            {/* <Td>{JSON.stringify(tokenDataObjects[i])}</Td> */}
+                          </Tr>
+                        );
+                      })}
+                    </Tbody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                "No tokens!"
+              )
+            ) : (
+              "Please make a query!"
+            )}
+          </Box>
         </Flex>
-      </FormControl>
-      <Flex
-        w="100%"
-        flexDirection="column"
-        alignItems="center"
-        justifyContent={"center"}
-      >
-        <Heading my={16}>ERC-20 token balances:</Heading>
-        {isLoading ? (
-          <Flex
-            alignItems={"center"}
-            justifyContent="center"
-            flexDirection={"column"}
-          >
-            <CircularProgress isIndeterminate />
-            <br />
-            This may take a few seconds...
-          </Flex>
-        ) : hasQueried ? (
-          results && results.tokenBalances && results.tokenBalances.length ? (
-            <SimpleGrid w={"90vw"} columns={4} spacing={24}>
-              {results.tokenBalances.map((e, i) => {
-                return (
-                  <Flex
-                    flexDir={"column"}
-                    color="white"
-                    bg="blue"
-                    w={"20vw"}
-                    key={i}
-                  >
-                    <Box>
-                      <b>Symbol:</b> ${tokenDataObjects[i].symbol}&nbsp;
-                    </Box>
-                    <Box>
-                      <b>Balance:</b>&nbsp;
-                      {parseFloat(
-                        Utils.formatUnits(
-                          e.tokenBalance,
-                          tokenDataObjects[i].decimals
-                        )
-                      ).toPrecision(8)}
-                    </Box>
-                    <Image
-                      boxSize="100px"
-                      objectFit="cover"
-                      alt={tokenDataObjects[i].name}
-                      src={tokenDataObjects[i].logo}
-                    />
-                  </Flex>
-                );
-              })}
-            </SimpleGrid>
-          ) : (
-            "No tokens!"
-          )
-        ) : (
-          "Please make a query!"
-        )}
-      </Flex>
+      </Container>
     </Box>
   );
 }

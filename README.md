@@ -20,11 +20,18 @@ Here are a few challenge suggestions:
 3.  🟢 The token balances can sometimes be a little long and break the outline of the page... can you fix that? 🔧
 4.  🟢 There is no error-checking for wrongly formed requests, or really any error checking of any kind... can you add some in?
 5.  🟢 Can you add ENS support for inputs?
-6.  🔴 There are ways to make this app faster... can you implement some of them? How can the query be made _even_ quicker?
-7.  🔴 Add ethereum balance to the list
-8.  🔴 The images and grid display could look better... anything you can do about that?
-9.  🟡 Add polygon connection
-    9.1 🔴 Manage ENS?
-    9.2 🔴 Add Matic balance
-7.  🔴 Make it prettier! 🎨
-10. 🔴 Completely open-ended!! Use this as the base for your next hackathon project, dream company or personal expedition :)
+6.  🟡 Make it prettier! 🎨
+    6.1 🟢 New layout
+    6.2 🟢 The images and grid display could look better... anything you can do about that?
+    6.4 🔴 Use React Routing for wallet address to make it bookmark friendly
+    6.3 🔴 Last touchs
+7.  🔴 There are ways to make this app faster... can you implement some of them? How can the query be made _even_ quicker?
+8.  🔴 Add polygon connection (others?)
+    8.1 🔴 Let user select chain
+    8.2 🔴 Show tokens from different chains at the same time
+    8.3 🔴 Show NFTs from different chains at the same time
+9.  🔴 Completely open-ended!! Use this as the base for your next hackathon project, dream company or personal expedition :)
+    9.1 🔴 Add Ethereum as first token
+    9.2 🔴 Add price to tokens to calculate total balance
+    9.3 🔴 Add NFT List with available information
+    9.4 🔴 Add list of last transactions
