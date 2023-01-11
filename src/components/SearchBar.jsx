@@ -1,12 +1,14 @@
 import { Input, Spinner } from "@chakra-ui/react";
 import { isAddress } from "ethers/lib/utils.js";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useProvider } from "wagmi";
 
-export default function SearchBar({ userAddress, setUserAddress }) {
+export default function SearchBar() {
   const provider = useProvider();
   const [isLoading, setIsLoading] = useState(false);
   const [addressError, setAddressError] = useState(false);
+  const navigate = useNavigate();
 
   // let router = useRouter();
 
@@ -69,7 +71,7 @@ export default function SearchBar({ userAddress, setUserAddress }) {
 
     setIsLoading(false);
     console.log("resolved:", resolved);
-    setUserAddress(resolved);
+    navigate(`/address/${resolved}`);
   };
 
   return (

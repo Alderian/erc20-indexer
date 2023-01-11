@@ -23,15 +23,18 @@ Here are a few challenge suggestions:
 6.  🟡 Make it prettier! 🎨
     6.1 🟢 New layout
     6.2 🟢 The images and grid display could look better... anything you can do about that?
-    6.4 🔴 Use React Routing for wallet address to make it bookmark friendly
+    6.4 🟢 Use React Routing for wallet address to make it bookmark friendly
     6.3 🔴 Last touchs
-7.  🔴 There are ways to make this app faster... can you implement some of them? How can the query be made _even_ quicker?
+7.  🟡 There are ways to make this app faster... can you implement some of them? How can the query be made _even_ quicker?
+    7.1 🟢 Add SWR and useHooks
+    7.2 🔴 Add SSR or an API to make it better (hide Alchemy api key too)
 8.  🔴 Add polygon connection (others?)
     8.1 🔴 Let user select chain
     8.2 🔴 Show tokens from different chains at the same time
     8.3 🔴 Show NFTs from different chains at the same time
 9.  🔴 Completely open-ended!! Use this as the base for your next hackathon project, dream company or personal expedition :)
-    9.1 🔴 Add Ethereum as first token
-    9.2 🔴 Add price to tokens to calculate total balance
-    9.3 🔴 Add NFT List with available information
-    9.4 🔴 Add list of last transactions
+    9.1 🔴 Add Ethereum price and balance to de left
+    9.2 🔴 Add Ethereum as first token
+    9.3 🔴 Add price to tokens to calculate total balance
+    9.4 🔴 Add NFT List with available information
+    9.5 🔴 Add list of last transactions

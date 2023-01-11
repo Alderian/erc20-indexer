@@ -28,7 +28,7 @@ const NavLink = ({ children }) => (
   </Link>
 );
 
-export default function HeaderToolBar({ userAddress, setUserAddress }) {
+export default function HeaderToolBar() {
   const { colorMode, toggleColorMode } = useColorMode();
 
   return (
@@ -39,10 +39,7 @@ export default function HeaderToolBar({ userAddress, setUserAddress }) {
             <Box>ERC-20 Token Indexer</Box>
 
             <Flex alignItems={"center"}>
-              <SearchBar
-                userAddress={userAddress}
-                setUserAddress={setUserAddress}
-              />
+              <SearchBar />
             </Flex>
 
             <Flex alignItems={"center"}>
