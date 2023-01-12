@@ -29,6 +29,12 @@ export const getAddressBalance = async (_address) => {
   };
 };
 
+export const getTokenMetadata = async (_contractAddress ) => {
+  return await alchemy.core.getTokenMetadata(
+    _contractAddress
+  );
+}
+
 export const getTokenBalances = async (_address) => {
   let tokenBalances = await alchemy.core.getTokenBalances(_address);
   if (tokenBalances && tokenBalances.tokenBalances) {
@@ -39,24 +45,24 @@ export const getTokenBalances = async (_address) => {
       );
     });
 
-    // Loop through all tokens with non-zero balance
-    for (let token of tokenBalances) {
-      // Get balance of token
-      let balance = token.tokenBalance;
+    // // Loop through all tokens with non-zero balance
+    // for (let token of tokenBalances) {
+    //   // Get balance of token
+    //   let balance = token.tokenBalance;
 
-      // Get metadata of token
-      const metadata = await alchemy.core.getTokenMetadata(
-        token.contractAddress
-      );
+    //   // Get metadata of token
+    //   const metadata = await alchemy.core.getTokenMetadata(
+    //     token.contractAddress
+    //   );
 
-      // Compute token balance in human-readable format
-      balance = balance / Math.pow(10, metadata.decimals);
-      balance = balance.toFixed(2);
+    //   // Compute token balance in human-readable format
+    //   balance = balance / Math.pow(10, metadata.decimals);
+    //   balance = balance.toFixed(2);
 
-      token.normalizedBalance = balance;
+    //   token.normalizedBalance = balance;
 
-      Object.assign(token, metadata);
-    }
+    //   Object.assign(token, metadata);
+    // }
   } else {
     tokenBalances = [];
   }

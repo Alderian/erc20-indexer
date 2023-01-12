@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import Hash from "./Hash";
 import useTokenBalances from "./hooks/useTokenBalance";
+import WalletTokenRow, { WalletTokenHeader } from "./WalletTokenRow";
 
 export default function WalletTokens({ searchAddress }) {
   const { data, isLoading } = useTokenBalances(searchAddress);
@@ -37,40 +38,11 @@ export default function WalletTokens({ searchAddress }) {
       <TableContainer>
         <Table variant="simple" size={"lg"}>
           <Thead>
-            <Tr>
-              <Th>Asset</Th>
-              <Th>Symbol</Th>
-              <Th>Contract Address</Th>
-              <Th isNumeric>Quantity</Th>
-              {/* <Th>Price</Th> */}
-            </Tr>
+            <WalletTokenHeader />
           </Thead>
           <Tbody>
             {data.tokenBalances.map((e, i) => {
-              return (
-                <Tr key={i}>
-                  <Td>
-                    <Flex alignItems={"center"} gap={2}>
-                      <Avatar name={e.name} src={e.logo} />
-                      {e.name}
-                    </Flex>
-                  </Td>
-                  <Td>{e.symbol}</Td>
-                  <Td>
-                    <Hash hash={e.contractAddress} path={"Token"} />
-                  </Td>
-                  <Td isNumeric>{e.normalizedBalance}</Td>
-                  {/* <Td isNumeric>
-                                {parseFloat(
-                                  Utils.formatUnits(
-                                    e.tokenBalance,
-                                    e.decimals
-                                  )
-                                ).toPrecision(8)}
-                              </Td> */}
-                  {/* <Td>{JSON.stringify(e)}</Td> */}
-                </Tr>
-              );
+              return <WalletTokenRow token={e} key={i} tokenKey={i} />;
             })}
           </Tbody>
         </Table>
