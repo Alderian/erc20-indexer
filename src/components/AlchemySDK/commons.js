@@ -1,6 +1,8 @@
 import { Alchemy, Network } from "alchemy-sdk";
 import { ALCHEMY_API_KEY } from "../env";
 
+export const MAX_ITEMS_PRE_PAGE = 20; //|| process.env.NEXT_PUBLIC_MAX_ITEMS_PER_PAGE;
+
 // export const ALCHEMY_REFRESH_INTERVAL =
 //   process.env.NEXT_PUBLIC_ALCHEMY_API_REFRESH_INERVAL;
 
@@ -19,8 +21,6 @@ export const settings = {
 //   https://docs.alchemy.com/reference/alchemy-sdk-api-surface-overview#api-surface
 export const alchemy = new Alchemy(settings);
 
-const MAX_ITEMS_PRE_PAGE = 20; //|| process.env.NEXT_PUBLIC_MAX_ITEMS_PER_PAGE;
-
 // -- Address
 
 export const getAddressBalance = async (_address) => {
@@ -29,11 +29,9 @@ export const getAddressBalance = async (_address) => {
   };
 };
 
-export const getTokenMetadata = async (_contractAddress ) => {
-  return await alchemy.core.getTokenMetadata(
-    _contractAddress
-  );
-}
+export const getTokenMetadata = async (_contractAddress) => {
+  return await alchemy.core.getTokenMetadata(_contractAddress);
+};
 
 export const getTokenBalances = async (_address) => {
   let tokenBalances = await alchemy.core.getTokenBalances(_address);
@@ -44,30 +42,31 @@ export const getTokenBalances = async (_address) => {
         "0x0000000000000000000000000000000000000000000000000000000000000000"
       );
     });
-
-    // // Loop through all tokens with non-zero balance
-    // for (let token of tokenBalances) {
-    //   // Get balance of token
-    //   let balance = token.tokenBalance;
-
-    //   // Get metadata of token
-    //   const metadata = await alchemy.core.getTokenMetadata(
-    //     token.contractAddress
-    //   );
-
-    //   // Compute token balance in human-readable format
-    //   balance = balance / Math.pow(10, metadata.decimals);
-    //   balance = balance.toFixed(2);
-
-    //   token.normalizedBalance = balance;
-
-    //   Object.assign(token, metadata);
-    // }
   } else {
     tokenBalances = [];
   }
 
   return {
     tokenBalances,
+  };
+};
+
+export const getOwnedNFTs = async (
+  ownerAddress,
+  startToken = 0,
+  size = MAX_ITEMS_PRE_PAGE,
+  contractAddresses,
+  withMetadata = true
+) => {
+  console.log("Get NFTS for", ownerAddress);
+  let nfts = await alchemy.nft.getNftsForOwner(ownerAddress, {
+    pageKey: startToken,
+    pageSize: size,
+    omitMetadata: !withMetadata,
+    contractAddresses,
+  });
+
+  return {
+    nfts,
   };
 };

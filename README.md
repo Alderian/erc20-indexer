@@ -23,7 +23,7 @@ Taken from skeleton app that uses the Alchemy SDK rigged to Alchemy's Enhanced A
 7.  🟡 There are ways to make this app faster... can you implement some of them? How can the query be made _even_ quicker?
     7.1 🟢 Add SWR and useHooks
     7.2 🔴 Add SSR or an API to make it better (hide Alchemy api key too)
-8.  🟡 Add NFT List with available information from Alchemy API
+8.  🟢 Add NFT List with available information from Alchemy API
 9.  🔴 Completely open-ended!! Use this as the base for your next hackathon project, dream company or personal expedition :)
     9.1 🔴 Add Ethereum price and balance to de left
     9.2 🔴 Add Ethereum as first token

@@ -11,7 +11,7 @@ export default function useTokenBalances(address) {
   const shouldFetch = !!address;
 
   return useSWR(
-    shouldFetch ? [`/token/${address}`] : null,
+    shouldFetch ? [`/tokens/${address}`] : null,
     _getTokenBalances(address),
     {
       refreshInterval: 10 * 1000, // 10 seconds
