@@ -1,10 +1,19 @@
-import { Avatar, Box, Flex } from "@chakra-ui/react";
 import {
-  useEnsAddress,
-  useEnsAvatar,
-  useEnsName,
-} from "wagmi";
+  Avatar,
+  Box,
+  Flex,
+  Spinner,
+  Stat,
+  StatHelpText,
+  StatLabel,
+  StatNumber,
+  Text,
+} from "@chakra-ui/react";
+import { useBalance, useEnsAddress, useEnsAvatar, useEnsName } from "wagmi";
+import { formatCurrency } from "./commons";
 import Hash from "./Hash";
+import { useEthPrice } from "./hooks/useEthPrice";
+import { Utils } from "alchemy-sdk";
 
 function EnsAvatar({ address }) {
   const { data, isError, isLoading } = useEnsAvatar({
@@ -46,11 +55,42 @@ function Name({ address }) {
 }
 
 export default function WalletInfo({ address }) {
+  const { data, isError, isLoading } = useBalance({
+    address,
+    watch: true,
+    cacheTime: 2000,
+  });
+  const { eth } = useEthPrice();
+
   return (
     <Box fontSize={24} fontWeight={"bold"}>
       <EnsAvatar address={address} />
       <Address address={address} />
       <Name address={address} />
+
+      <Stat marginY={"2em"}>
+        <StatLabel>Ethereum balance</StatLabel>
+        <StatNumber>
+          {isLoading ? (
+            <Spinner size={xs} />
+          ) : (
+            <Text>Ξ {Number(data?.formatted).toPrecision(6)}</Text>
+          )}
+        </StatNumber>
+        <StatHelpText>
+          <>
+            {data &&
+              eth &&
+              eth.data &&
+              formatCurrency(
+                parseFloat(Utils.formatEther(data.value)) *
+                  parseFloat(eth.data.price_usd)
+              )}
+            <br />
+            (@ {formatCurrency(eth.data.price_usd)}/ETH)
+          </>
+        </StatHelpText>
+      </Stat>
     </Box>
   );
 }
