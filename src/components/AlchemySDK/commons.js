@@ -1,4 +1,4 @@
-import { Alchemy, Network } from "alchemy-sdk";
+import { Alchemy, Network, TokenBalanceType } from "alchemy-sdk";
 import { ALCHEMY_API_KEY } from "../env";
 
 export const MAX_ITEMS_PRE_PAGE = 20; //|| process.env.NEXT_PUBLIC_MAX_ITEMS_PER_PAGE;
@@ -34,7 +34,7 @@ export const getTokenMetadata = async (_contractAddress) => {
 };
 
 export const getTokenBalances = async (_address) => {
-  let tokenBalances = await alchemy.core.getTokenBalances(_address);
+  let tokenBalances = await alchemy.core.getTokenBalances(_address, {type: TokenBalanceType.DEFAULT_TOKENS});
   if (tokenBalances && tokenBalances.tokenBalances) {
     tokenBalances = tokenBalances.tokenBalances.filter((token) => {
       return (
